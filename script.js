@@ -201,64 +201,63 @@ joinDialog.addEventListener("click", (event) => {
     }
 });
 
-joinForm.addEventListener("submit", (event) => {
+age("Please complete every field.", "error");
+        return;
+    
+const joinForm = document.getElementById("joinForm");
+
+if (joinForm) {
+  joinForm.addEventListener("submit", function (event) {
     event.preventDefault();
 
     const fullName = document.getElementById("fullName").value.trim();
     const email = document.getElementById("email").value.trim();
-    const department = departmentInput.value;
+    const department = document.getElementById("department").value;
 
     if (!fullName || !email || !department) {
-        showFormMessage("Please complete every field.", "error");
-        return;
+      alert("Please fill in all fields.");
+      return;
     }
 
-    // This saves only a local demo request in this browser.
-    // It does NOT send an application to an administrator.
+    const member = {
+      fullName: fullName,
+      email: email,
+      department: department,
+      joinedAt: new Date().toISOString(),
+      status: "Active Member"
+    };
 
-    let requests = [];
+    // Save membership locally
+    let members = JSON.parse(
+      localStorage.getItem("progotech-members") || "[]"
+    );
 
-    try {
-        requests = JSON.parse(
-            localStorage.getItem("progotech-demo-requests") || "[]"
-        );
+    const alreadyJoined = members.some(
+      user => user.email.toLowerCase() === email.toLowerCase()
+    );
 
-        if (!Array.isArray(requests)) {
-            requests = [];
-        }
-
-        requests.push({
-            name: fullName,
-            email: email,
-            department: department,
-            status: "Pending (demo only)",
-            submittedAt: new Date().toISOString()
-        });
-
-        localStorage.setItem(
-            "progotech-demo-requests",
-            JSON.stringify(requests)
-        );
-
-        showFormMessage(
-            "Demo request saved in this browser only. It has not been sent to an administrator.",
-            "success"
-        );
-
-        joinForm.reset();
-    } catch (error) {
-        showFormMessage(
-            "Browser storage is unavailable. No request was saved.",
-            "error"
-        );
+    if (alreadyJoined) {
+      alert("You have already joined ProgoTech Society!");
+      return;
     }
-});
 
-function showFormMessage(message, type) {
-    formMessage.textContent = message;
-    formMessage.className = `form-message ${type}`;
+    members.push(member);
+
+    localStorage.setItem(
+      "progotech-members",
+      JSON.stringify(members)
+    );
+
+    alert("Welcome to NJV ProgoTech Society! You are now a member.");
+
+    joinForm.reset();
+
+    const dialog = document.getElementById("joinDialog");
+    if (dialog && typeof dialog.close === "function") {
+      dialog.close();
+    }
+  });
 }
-
 
 // 5. CURRENT YEAR IN FOOTER
 
